@@ -44,7 +44,6 @@ nav {
 }
 
 .login__input {
-  border: none;
   padding: 0.5rem 2rem;
   font-size: 1.6rem;
   font-family: inherit;
@@ -94,7 +93,7 @@ nav {
   gap: 2rem;
 
   /* NOTE This creates the fade in/out anumation */
-  opacity: 0;
+  /*opacity: 0;*/
   transition: all 1s;
 }
 
