@@ -75,6 +75,28 @@ const calcDisplayBalance = function (movements) {
 
 calcDisplayBalance(account1.movements);
 
+const calcDisplaySummary = function (movements) {
+  const incomes = movements
+    .filter((mov) => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes}€`;
+
+  const outcomes = movements
+    .filter((mov) => mov < 0)
+    .reduce((acc, mov) => acc + mov);
+  labelSumOut.textContent = `${Math.abs(outcomes)}€`;
+
+  const interest = movements
+    .filter((mov) => mov > 0)
+    .map((deposit) => (deposit * 1.2) / 100)
+    .filter((int) => int >= 1)
+    .reduce((acc, mov) => acc + mov, 0);
+
+  labelSumInterest.textContent = `${interest}€`;
+};
+
+calcDisplaySummary(account1.movements);
+
 const displayMovements = function (movements) {
   containerMovements.innerHTML = "";
   movements.forEach(function (mov, i) {
@@ -85,7 +107,7 @@ const displayMovements = function (movements) {
       i + 1
     } ${type}</div>
         <div class="movements__date">3 days ago</div>
-        <div class="movements__value">${Math.abs(mov)}</div>
+        <div class="movements__value">${Math.abs(mov)}€</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML("afterbegin", mv_row);
