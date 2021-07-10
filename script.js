@@ -154,9 +154,11 @@ btnTransfer.addEventListener("click", function (e) {
     receiverAcc = accounts.find(
       (acc) => acc.username === inputTransferTo.value
     );
+
   // Clear input fields
   inputTransferTo.value = inputTransferAmount.value = "";
   inputTransferAmount.blur();
+
   if (
     amount &&
     amount > 0 &&
@@ -170,5 +172,29 @@ btnTransfer.addEventListener("click", function (e) {
     updateUI(currentAccount);
   } else {
     console.log("Transfer Invalid!");
+  }
+});
+
+btnClose.addEventListener("click", function (e) {
+  e.preventDefault();
+  const closeAccountUsername = inputCloseUsername.value,
+    closeAccPin = inputClosePin.value;
+
+  // Clear input fields
+  inputCloseUsername.value = inputClosePin.value = "";
+  inputClosePin.blur();
+
+  if (
+    closeAccountUsername === currentAccount.username &&
+    currentAccount.pin === Number(closeAccPin)
+  ) {
+    const index = accounts.findIndex(
+      (acc) => acc.username === currentAccount.username
+    );
+    // Delete account
+    accounts.splice(index, 1);
+
+    // Hide UI
+    containerApp.style.opacity = 0;
   }
 });
