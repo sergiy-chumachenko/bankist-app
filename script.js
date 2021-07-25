@@ -30,8 +30,8 @@ const account1 = {
     "2021-07-24T12:01:20.894Z",
     "2021-07-25T12:01:20.894Z",
   ],
-  currency: "EUR",
-  locale: "pt-PT", // de-DE
+  currency: "USD",
+  locale: "en-US", // de-DE
 };
 
 const account2 = {
@@ -51,8 +51,8 @@ const account2 = {
     "2021-07-24T12:01:20.894Z",
     "2021-07-25T12:01:20.894Z",
   ],
-  currency: "USD",
-  locale: "en-US",
+  currency: "EUR",
+  locale: "de-DE",
 };
 
 const accounts = [account1, account2];
@@ -157,20 +157,23 @@ btnLogin.addEventListener("click", function (e) {
 });
 
 const calcDisplayBalance = function (acc) {
-  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${acc.balance.toFixed(2)} EUR`;
+  labelBalance.textContent = formatCurrency(
+    acc.movements.reduce((acc, mov) => acc + mov, 0),
+    acc.locale,
+    acc.currency
+  );
 };
 
 const calcDisplaySummary = function (acc) {
   const incomes = acc.movements
     .filter((mov) => mov > 0)
     .reduce((acc, mov) => acc + mov, 0);
-  labelSumIn.textContent = `${incomes.toFixed(2)}€`;
+  labelSumIn.textContent = formatCurrency(incomes, acc.locale, acc.currency);
 
   const outcomes = acc.movements
     .filter((mov) => mov < 0)
     .reduce((acc, mov) => acc + mov);
-  labelSumOut.textContent = `${Math.abs(outcomes).toFixed(2)}€`;
+  labelSumOut.textContent = formatCurrency(outcomes, acc.locale, acc.currency);
 
   const interest = acc.movements
     .filter((mov) => mov > 0)
@@ -178,7 +181,11 @@ const calcDisplaySummary = function (acc) {
     .filter((int) => int >= 1)
     .reduce((acc, mov) => acc + mov, 0);
 
-  labelSumInterest.textContent = `${interest.toFixed(2)}€`;
+  labelSumInterest.textContent = formatCurrency(
+    interest,
+    acc.locale,
+    acc.currency
+  );
 };
 
 const formatMovementDate = function (date, locale) {
@@ -200,6 +207,13 @@ const formatMovementDate = function (date, locale) {
   // return `${day}/${month}/${year}`;
 };
 
+const formatCurrency = function (value, locale, currency) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+  }).format(value);
+};
+
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = "";
   const movs = sort
@@ -210,7 +224,9 @@ const displayMovements = function (acc, sort = false) {
     const type = mov > 0 ? "deposit" : "withdrawal";
 
     const date = new Date(acc.movementsDates[i]);
-    const displayDate = formatMovementDate(date, acc.local);
+    const displayDate = formatMovementDate(date, acc.locale);
+
+    const formattedMovement = formatCurrency(mov, acc.locale, acc.currency);
 
     const mv_row = `
       <div class="movements__row">
@@ -218,7 +234,7 @@ const displayMovements = function (acc, sort = false) {
       i + 1
     } ${type}</div>
         <div class="movements__date">${displayDate}</div>
-        <div class="movements__value">${Math.abs(mov).toFixed(2)}€</div>
+        <div class="movements__value">${formattedMovement}</div>
       </div>
     `;
     containerMovements.insertAdjacentHTML("afterbegin", mv_row);
