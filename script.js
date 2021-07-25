@@ -3,7 +3,18 @@
 // Data
 const account1 = {
   owner: "Jonas Schmedtmann",
-  movements: [200, 455.23, -306.5, 25000, -642.21, -133.9, 79.97, 1300],
+  movements: [
+    200,
+    455.23,
+    -306.5,
+    25000,
+    -642.21,
+    -133.9,
+    79.97,
+    1300,
+    1500,
+    12000,
+  ],
   interestRate: 1.2, // %
   pin: 1111,
 
@@ -14,8 +25,10 @@ const account1 = {
     "2020-04-01T10:17:24.185Z",
     "2020-05-08T14:11:59.604Z",
     "2020-05-27T17:01:17.194Z",
-    "2020-07-11T23:36:17.929Z",
-    "2020-07-12T10:51:36.790Z",
+    "2021-07-21T18:49:59.371Z",
+    "2021-07-24T12:01:20.894Z",
+    "2021-07-24T12:01:20.894Z",
+    "2021-07-25T12:01:20.894Z",
   ],
   currency: "EUR",
   locale: "pt-PT", // de-DE
@@ -23,7 +36,7 @@ const account1 = {
 
 const account2 = {
   owner: "Jessica Davis",
-  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30, 10000],
   interestRate: 1.5,
   pin: 2222,
 
@@ -34,8 +47,9 @@ const account2 = {
     "2020-01-25T14:18:46.235Z",
     "2020-02-05T16:33:06.386Z",
     "2020-04-10T14:43:26.374Z",
-    "2020-06-25T18:49:59.371Z",
-    "2020-07-26T12:01:20.894Z",
+    "2021-07-21T18:49:59.371Z",
+    "2021-07-24T12:01:20.894Z",
+    "2021-07-25T12:01:20.894Z",
   ],
   currency: "USD",
   locale: "en-US",
@@ -152,6 +166,22 @@ const calcDisplaySummary = function (acc) {
   labelSumInterest.textContent = `${interest.toFixed(2)}€`;
 };
 
+const formatMovementDate = function (date) {
+  const calcDaysPassed = (date1, date2) =>
+    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+
+  const daysPassed = calcDaysPassed(new Date(), date);
+  console.log(daysPassed);
+  if (daysPassed === 0) return "today";
+  if (daysPassed === 1) return "yesterday";
+  if (daysPassed < 7) return `${daysPassed} days ago`;
+
+  const day = `${date.getDate()}`.padStart(2, 0);
+  const month = `${date.getMonth() + 1}`.padStart(2, 0);
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
 const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = "";
   const movs = sort
@@ -160,12 +190,10 @@ const displayMovements = function (acc, sort = false) {
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? "deposit" : "withdrawal";
-    const date = new Date(acc.movementsDates[i]);
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
 
-    const displayDate = `${day}/${month}/${year}`;
+    const date = new Date(acc.movementsDates[i]);
+    const displayDate = formatMovementDate(date);
+    console.log(`Display date: ${displayDate}`);
 
     const mv_row = `
       <div class="movements__row">
