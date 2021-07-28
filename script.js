@@ -105,7 +105,34 @@ const updateUI = function (acc) {
   calcDisplaySummary(acc);
 };
 
-let currentAccount;
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
+
+    // In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`;
+
+    // When 0 seconds, stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer);
+      labelWelcome.textContent = "Log in to get started";
+      containerApp.style.opacity = 0;
+    }
+
+    // Decrease one second
+    time--;
+  };
+  // Set time to 5 min
+  let time = 120;
+
+  // Call timer every second
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
+let currentAccount, timer;
 btnLogin.addEventListener("click", function (e) {
   // Prevent form from submitting
   e.preventDefault();
@@ -149,6 +176,10 @@ btnLogin.addEventListener("click", function (e) {
     inputLoginUsername.value = inputLoginPin.value = "";
     inputLoginPin.blur();
 
+    // Start the logout timer
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
+
     // Update UI
     updateUI(currentAccount);
   } else {
@@ -157,8 +188,9 @@ btnLogin.addEventListener("click", function (e) {
 });
 
 const calcDisplayBalance = function (acc) {
+  acc.balance = acc.movements.reduce((acc, mov) => acc + mov, 0);
   labelBalance.textContent = formatCurrency(
-    acc.movements.reduce((acc, mov) => acc + mov, 0),
+    acc.balance,
     acc.locale,
     acc.currency
   );
@@ -267,6 +299,10 @@ btnTransfer.addEventListener("click", function (e) {
 
     // Update UI
     updateUI(currentAccount);
+
+    // Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   } else {
     console.log("Transfer Invalid!");
   }
@@ -284,14 +320,20 @@ btnLoan.addEventListener("click", function (e) {
     loanAmount &&
     currentAccount.movements.some((mov) => mov > loanAmount * 0.1)
   ) {
-    // Add new movement
-    currentAccount.movements.push(loanAmount);
+    setTimeout(function () {
+      // Add new movement
+      currentAccount.movements.push(loanAmount);
 
-    // Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+      // Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update UI
-    updateUI(currentAccount);
+      // Update UI
+      updateUI(currentAccount);
+
+      // Reset timer
+      clearInterval(timer);
+      timer = startLogOutTimer();
+    }, 2500);
   }
 });
 
